@@ -1,24 +1,24 @@
-import './Input.module.css';
+import styles from './Input.module.css';
 
 export const Input = ({
     label,
     type,
     placeholder,
     error,
-    register,    // Adicionado para integração com React Hook Form
+    register,
     name,  
     })=>{
 
     return(
-        <div className="inputContainer">
-            <label className="inputLabel">{label}</label>
+        <div className={styles.inputContainer}>
+            <label className={styles.inputLabel}>{label}</label>
             <input
                 type={type}
                 placeholder={placeholder}
-                className={`inputField ${error ? "input-error":""}`}
+                className={`${styles.inputField} ${error ? styles.inputError : ""}`}
                 {...register(name)}
             />
-            {error && <span className="error-message">{error.message}</span>}
+            {error && <span className={styles.errorMessage}>{error.message}</span>}
         </div>
     )
 }

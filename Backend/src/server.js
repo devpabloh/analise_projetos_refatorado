@@ -6,7 +6,7 @@ const {routes} = require('./routes');
 const app = express();
 
 app.use(cors({
-    origin: `http://localhost:${process.env.PORT}`,
+    origin: 'http://localhost:5173',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
 }));
@@ -28,6 +28,6 @@ app.use((error, requisicao, resposta, next)=>{
     }));
 });
 
-app.listen(process.env.PORT, () => {
-    console.log(`O servidor está rodando na porta ${process.env.PORT}`)
-})
+app.listen(3000, () => {
+    console.log(`O servidor está rodando na porta 3000`)
+});

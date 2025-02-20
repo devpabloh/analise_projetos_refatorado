@@ -1,0 +1,44 @@
+.selectContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+}
+
+.selectLabel {
+    font-size: var(--font-md);
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.selectField {
+    padding: var(--spacing-sm);
+    border: 2px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: var(--font-base);
+    width: 100%;
+    transition: all 0.2s;
+    background-color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+}
+
+.selectField:focus {
+    outline: none;
+    border-color: var(--color-focus);
+    box-shadow: 0 0 0 2px var(--color-focus-shadow);
+    background-color: var(--color-focus-bg);
+}
+
+.selectField.selectError {
+    border-color: var(--color-error);
+}
+
+.selectField.selectError:focus {
+    border-color: var(--color-error);
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.3);
+}
+
+.errorMessage {
+    font-size: var(--font-sm);
+    color: var(--color-error);
+}

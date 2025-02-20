@@ -1,0 +1,279 @@
+import { useState, useEffect } from 'react';
+import styles from "./Form.module.css"
+import { Input } from '../../componentes/Input';
+import { Select } from '../../componentes/Select';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { formSchema } from '../../esquemas/esquemaFormulario';
+
+export const FormularioProjeto = () => {
+    const [showScrollButton, setShowScrollButton] = useState(false);
+    const [showDeployFields, setShowDeployFields] = useState(false);
+    
+    const { 
+        register, 
+        handleSubmit,
+        watch,
+        formState: { errors } 
+    } = useForm({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            possui_testes: 'false',
+            possui_documentacao: 'false',
+            possui_deploy: 'false',
+            status: 'em_andamento'
+        }
+    });
+
+    const possuiDeploy = watch('possui_deploy');
+
+    useEffect(() => {
+        setShowDeployFields(possuiDeploy === 'true');
+    }, [possuiDeploy]);
+
+    const onSubmit = async (data) => {
+        try {
+            console.log('Dados do formulário:', data);
+            // Aqui vamos implementar a chamada à API
+        } catch (error) {
+            console.error('Erro ao enviar formulário:', error);
+        }
+    };
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setShowScrollButton(window.scrollY > 300);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+
+    return (
+        <>
+            <form className={styles.formContainer} onSubmit={handleSubmit(onSubmit)}>
+                <fieldset className={styles.fieldset}>
+                    <legend className={styles.legend}>Informações Básicas do Projeto</legend>
+                    <Input 
+                        label="Nome do Projeto"
+                        type="text"
+                        name="nome"
+                        placeholder="Digite o nome do projeto"
+                        register={register}
+                        error={errors.nome}
+                    />
+                    <Input 
+                        label="Descrição"
+                        type="text"
+                        name="descricao"
+                        placeholder="Descreva o projeto detalhadamente"
+                        register={register}
+                        error={errors.descricao}
+                    />
+                    <Input 
+                        label="Data de Início"
+                        type="date"
+                        name="data_inicial"
+                        register={register}
+                        error={errors.data_inicial}
+                    />
+                    <Input 
+                        label="Data de Entrega"
+                        type="date"
+                        name="data_entrega"
+                        register={register}
+                        error={errors.data_entrega}
+                    />
+                    <Select
+                        label="Status do Projeto"
+                        name="status"
+                        register={register}
+                        error={errors.status}
+                        options={[
+                            { value: "em_andamento", label: "Em Andamento" },
+                            { value: "concluido", label: "Concluído" },
+                            { value: "pausado", label: "Pausado" }
+                        ]}
+                    />
+                </fieldset>
+
+                <fieldset className={styles.fieldset}>
+                    <legend className={styles.legend}>Stack Tecnológica</legend>
+                    <Input 
+                        label="Tecnologias Frontend"
+                        type="text"
+                        name="tecnologias_frontend"
+                        placeholder="Ex: React, Vue, Angular..."
+                        register={register}
+                        error={errors.tecnologias_frontend}
+                    />
+                    <Input 
+                        label="Tecnologias Backend"
+                        type="text"
+                        name="tecnologias_backend"
+                        placeholder="Ex: Node.js, Python, Java..."
+                        register={register}
+                        error={errors.tecnologias_backend}
+                    />
+                    <Input 
+                        label="Banco de Dados"
+                        type="text"
+                        name="banco_dados"
+                        placeholder="Ex: PostgreSQL, MongoDB..."
+                        register={register}
+                        error={errors.banco_dados}
+                    />
+                    <Input 
+                        label="Metodologia de APIs"
+                        type="text"
+                        name="metodologia_apis"
+                        placeholder="Ex: REST, GraphQL..."
+                        register={register}
+                        error={errors.metodologia_apis}
+                    />
+                </fieldset>
+
+                <fieldset className={styles.fieldset}>
+                    <legend className={styles.legend}>Testes e Qualidade</legend>
+                    <Select
+                        label="Possui Testes?"
+                        name="possui_testes"
+                        register={register}
+                        error={errors.possui_testes}
+                        options={[
+                            { value: "true", label: "Sim" },
+                            { value: "false", label: "Não" }
+                        ]}
+                    />
+                    <Input 
+                        label="Descrição dos Testes"
+                        type="text"
+                        name="descricao_testes"
+                        placeholder="Descreva os tipos de testes implementados"
+                        register={register}
+                        error={errors.descricao_testes}
+                    />
+                    <Select
+                        label="Possui Documentação?"
+                        name="possui_documentacao"
+                        register={register}
+                        error={errors.possui_documentacao}
+                        options={[
+                            { value: "true", label: "Sim" },
+                            { value: "false", label: "Não" }
+                        ]}
+                    />
+                    <Input 
+                        label="Link da Documentação"
+                        type="url"
+                        name="link_documentacao"
+                        placeholder="https://..."
+                        register={register}
+                        error={errors.link_documentacao}
+                    />
+                </fieldset>
+
+                <fieldset className={styles.fieldset}>
+                    <legend className={styles.legend}>Deploy e Infraestrutura</legend>
+                    <Select
+                        label="Possui Processo de Deploy?"
+                        name="possui_deploy"
+                        register={register}
+                        error={errors.possui_deploy}
+                        options={[
+                            { value: "true", label: "Sim" },
+                            { value: "false", label: "Não" }
+                        ]}
+                    />
+                    {showDeployFields && (
+                        <>
+                            <Input 
+                                label="Descrição do Deploy"
+                                type="text"
+                                name="descricao_deploy"
+                                placeholder="Descreva o processo de deploy"
+                                register={register}
+                                error={errors.descricao_deploy}
+                            />
+                            <Input 
+                                label="Ambiente de Homologação"
+                                type="url"
+                                name="ambiente_homologacao"
+                                placeholder="URL do ambiente de homologação"
+                                register={register}
+                                error={errors.ambiente_homologacao}
+                            />
+                            <Input 
+                                label="Ambiente de Produção"
+                                type="url"
+                                name="ambiente_producao"
+                                placeholder="URL do ambiente de produção"
+                                register={register}
+                                error={errors.ambiente_producao}
+                            />
+                        </>
+                    )}
+                </fieldset>
+
+                <fieldset className={styles.fieldset}>
+                    <legend className={styles.legend}>Responsáveis pelo Projeto</legend>
+                    <Input 
+                        label="Nome do Responsável"
+                        type="text"
+                        name="nome_responsavel"
+                        placeholder="Nome completo"
+                        register={register}
+                        error={errors.nome_responsavel}
+                    />
+                    <Input 
+                        label="Email do Responsável"
+                        type="email"
+                        name="email_responsavel"
+                        placeholder="email@exemplo.com"
+                        register={register}
+                        error={errors.email_responsavel}
+                    />
+                    <Input 
+                        label="Telefone do Responsável"
+                        type="tel"
+                        name="telefone_responsavel"
+                        placeholder="(00) 00000-0000"
+                        register={register}
+                        error={errors.telefone_responsavel}
+                    />
+                    <Select
+                        label="Função no Projeto"
+                        name="funcao_responsavel"
+                        register={register}
+                        error={errors.funcao_responsavel}
+                        options={[
+                            { value: "gerente", label: "Gerente de Projeto" },
+                            { value: "desenvolvedor", label: "Desenvolvedor" },
+                            { value: "analista", label: "Analista" },
+                            { value: "arquiteto", label: "Arquiteto de Software" }
+                        ]}
+                    />
+                </fieldset>
+
+                <button type="submit" className={styles.submitButton}>
+                    Cadastrar Projeto
+                </button>
+            </form>
+            <button 
+                type="button"
+                className={`${styles.scrollToTop} ${showScrollButton ? styles.visible : ''}`}
+                onClick={scrollToTop}
+                aria-label="Voltar ao topo"
+            >
+                ↑
+            </button>
+        </>
+    );
+};

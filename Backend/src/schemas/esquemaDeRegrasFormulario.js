@@ -31,15 +31,49 @@ const esquemaProjeto = z.object({
     // Stack tecnológica
     tecnologias_frontend: z.string(),
     tecnologias_backend: z.string(),
-    tecnologias_banco: z.string(),
+    banco_dados: z.string(), // alterado de tecnologias_banco
     metodologia_apis: z.string(),
 
     // Testes e Deploy
     possui_testes: z.boolean(),
-    descricao_testes: z.string().optional(),
-    processo_deploy: z.boolean(),
-    deploy_automatizado: z.boolean(),
-    deploy_implementado: z.boolean(),
+    descricao_testes: z.string()
+        .optional()
+        .nullable()
+        .refine(val => !val || val.length >= 10, {
+            message: 'A descrição dos testes deve ter no mínimo 10 caracteres'
+        }),
+    possui_deploy: z.string().transform(val => val === 'true'),
+    descricao_deploy: z.string()
+        .optional()
+        .nullable()
+        .refine((val, ctx) => {
+            if (ctx.parent.processo_deploy === true && !val) {
+                return false;
+            }
+            return val ? val.length >= 10 : true;
+        }, { message: 'A descrição do deploy deve ter no mínimo 10 caracteres quando possui deploy' }),
+    ambiente_homologacao: z.string()
+        .url('Digite uma URL válida')
+        .optional()
+        .nullable()
+        .refine((val, ctx) => {
+            if (ctx.parent.processo_deploy === true && !val) {
+                return false;
+            }
+            return true;
+        }, { message: 'URL do ambiente de homologação é obrigatória quando possui deploy' }),
+    ambiente_producao: z.string()
+        .url('Digite uma URL válida')
+        .optional()
+        .nullable()
+        .refine((val, ctx) => {
+            if (ctx.parent.processo_deploy === true && !val) {
+                return false;
+            }
+            return true;
+        }, { message: 'URL do ambiente de produção é obrigatória quando possui deploy' }),
+    deploy_automatizado: z.boolean().default(false),
+    deploy_implementado: z.boolean().default(false),
 
     // Documentação
     possui_documentacao: z.boolean(),
