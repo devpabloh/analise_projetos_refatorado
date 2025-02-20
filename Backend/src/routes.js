@@ -1,6 +1,6 @@
-const { esquemaResponsavel, esquemaProjeto } = require('./schemas/esquemaDeRegrasFormulario')
-const db = require('./config/database')
-const validarRequisicao = require('./middleware/validarRequisicao')
+import { esquemaResponsavel, esquemaProjeto } from './schemas/esquemaDeRegrasFormulario.js';
+import db from './config/database.js';
+import validarRequisicao from './middleware/validarRequisicao.js';
 
 export const Routes = [
     // Rota para listar todos os responsáveis
@@ -28,26 +28,52 @@ export const Routes = [
         middleware: validarRequisicao(esquemaResponsavel),
         controller: async ({requisicao, resposta}) => {
             try {
-                await esquemaResponsavel.parseAsync(requisicao.body)
+                console.log('Dados recebidos:', requisicao.body);
                 
+                // Validate the data
+                await esquemaResponsavel.parseAsync(requisicao.body);
+                
+                // Check if email already exists
+                const existingUser = await db('responsaveis')
+                    .where('email', requisicao.body.email)
+                    .first();
+                
+                if (existingUser) {
+                    return resposta.writeHead(400).end(JSON.stringify({
+                        erro: 'Email já cadastrado'
+                    }));
+                }
+
                 const [responsavel] = await db('responsaveis')
                     .insert(requisicao.body)
                     .returning('*');
+
+                console.log('Responsável cadastrado:', responsavel);
 
                 return resposta.writeHead(201).end(JSON.stringify({
                     mensagem: 'Responsável cadastrado com sucesso',
                     responsavel
                 }));
             } catch (error) {
+                console.error('Erro ao cadastrar responsável:', error);
+                
                 if (error.errors) {
                     return resposta.writeHead(400).end(JSON.stringify({
                         erro: 'Erro de validação',
                         detalhes: error.errors
-                    }))
+                    }));
                 }
+
+                if (error.code === '23505') { // PostgreSQL unique constraint error
+                    return resposta.writeHead(400).end(JSON.stringify({
+                        erro: 'Email já cadastrado'
+                    }));
+                }
+
                 return resposta.writeHead(500).end(JSON.stringify({
-                    erro: 'Erro ao salvar responsavel'
-                }))
+                    erro: 'Erro ao salvar responsável',
+                    detalhes: error.message
+                }));
             }
         }
     },

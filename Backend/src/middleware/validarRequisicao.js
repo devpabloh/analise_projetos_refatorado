@@ -12,4 +12,4 @@ const validarRequisicao = (schema)=>{
     }
 }
 
-module.exports = validarRequisicao;
+export default validarRequisicao;

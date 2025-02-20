@@ -5,10 +5,12 @@ import { Select } from '../../componentes/Select';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema } from '../../esquemas/esquemaFormulario';
+import axios from 'axios';
 
 export const FormularioProjeto = () => {
     const [showScrollButton, setShowScrollButton] = useState(false);
     const [showDeployFields, setShowDeployFields] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     
     const { 
         register, 
@@ -32,11 +34,65 @@ export const FormularioProjeto = () => {
     }, [possuiDeploy]);
 
     const onSubmit = async (data) => {
+        setIsSubmitting(true);
         try {
             console.log('Dados do formulário:', data);
-            // Aqui vamos implementar a chamada à API
+            
+            // Preparar os dados do responsável
+            const dadosResponsavel = {
+                nome: data.nome_responsavel,
+                cargo: data.funcao_responsavel,
+                telefone: data.telefone_responsavel,
+                email: data.email_responsavel
+            };
+
+            console.log('Dados do responsável:', dadosResponsavel);
+
+            // Primeiro, cadastrar o responsável
+            const respostaResponsavel = await axios.post('http://localhost:3000/responsaveis', dadosResponsavel);
+            console.log('Resposta do cadastro de responsável:', respostaResponsavel.data);
+
+            // Preparar os dados do projeto com data_preenchimento
+            const dadosProjeto = {
+                nome: data.nome,
+                descricao: data.descricao,
+                data_preenchimento: new Date().toISOString(),
+                data_inicial: new Date(data.data_inicial).toISOString(),
+                data_entrega: new Date(data.data_entrega).toISOString(),
+                status: data.status,
+                tecnologias_frontend: data.tecnologias_frontend,
+                tecnologias_backend: data.tecnologias_backend,
+                banco_dados: data.banco_dados,
+                metodologia_apis: data.metodologia_apis,
+                possui_testes: data.possui_testes === 'true',
+                descricao_testes: data.descricao_testes || null,
+                possui_deploy: data.possui_deploy === 'true',
+                descricao_deploy: data.descricao_deploy || null,
+                ambiente_homologacao: data.ambiente_homologacao || null,
+                ambiente_producao: data.ambiente_producao || null,
+                possui_documentacao: data.possui_documentacao === 'true',
+                tipo_documentacao: data.link_documentacao || null,
+                documentacao_atualizada: true,
+                possui_medidas_seguranca: false,
+                possui_conformidade: false,
+                responsaveis: [{
+                    responsavel_id: respostaResponsavel.data.responsavel.id,
+                    tipo_responsabilidade: 'gerente_projetos'
+                }]
+            };
+
+            console.log('Dados do projeto:', dadosProjeto);
+
+            // Cadastrar o projeto
+            const respostaProjeto = await axios.post('http://localhost:3000/projetos', dadosProjeto);
+            console.log('Resposta do cadastro de projeto:', respostaProjeto.data);
+            
+            alert('Projeto cadastrado com sucesso!');
         } catch (error) {
-            console.error('Erro ao enviar formulário:', error);
+            console.error('Erro detalhado:', error.response?.data || error);
+            alert('Erro ao cadastrar projeto. Verifique o console para mais detalhes.');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -262,8 +318,8 @@ export const FormularioProjeto = () => {
                     />
                 </fieldset>
 
-                <button type="submit" className={styles.submitButton}>
-                    Cadastrar Projeto
+                <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+                    {isSubmitting ? 'Cadastrando...' : 'Cadastrar Projeto'}
                 </button>
             </form>
             <button 

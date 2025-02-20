@@ -1,4 +1,4 @@
-const z = require('zod');
+import {z} from 'zod';
 
 // o z.object cria um objeto que vai receber os campos do formulário e validar os campos do formulário com o zod e o z.string cria um campo do tipo string
 // tipos de validações no zod string(), number(), boolean(), date(), email(), url(), regex()
@@ -13,14 +13,14 @@ o tipo de validação do zod é o seguinte:
     url() - url ele pode receber as propriedades.url() - valida se a url é válida
     regex() - regex ele pode receber as propriedades.regex() - valida se o regex é válido
 */
-const esquemaResponsavel = z.object({
+export const esquemaResponsavel = z.object({
     nome: z.string().min(3),
     cargo: z.string(),
     telefone: z.string(),
     email: z.string().email("Email inválido")
 });
 
-const esquemaProjeto = z.object({
+export const esquemaProjeto = z.object({
     nome: z.string().min(3, "Nome do projeto deve ter no mínimo 3 caracteres"),
     descricao: z.string().min(10, "Descrição deve ter no mínimo 10 caracteres"),
     data_preenchimento: z.string().datetime(),
@@ -92,8 +92,3 @@ const esquemaProjeto = z.object({
         tipo_responsabilidade: z.enum(['lider_tecnico', 'gerente_projetos', 'suporte'])
     }))
 });
-
-module.exports = {
-    esquemaResponsavel,
-    esquemaProjeto
-};

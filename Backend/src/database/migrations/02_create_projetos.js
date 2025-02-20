@@ -1,4 +1,4 @@
-exports.up = function(knex) {
+export const up = function(knex) {
     return knex.schema.createTable('projetos', table => {
         table.increments('id').primary();
         // Informações básicas
@@ -47,6 +47,6 @@ exports.up = function(knex) {
     });
 };
 
-exports.down = function(knex) {
+export const down = function(knex) {
     return knex.schema.dropTable('projetos');
 };

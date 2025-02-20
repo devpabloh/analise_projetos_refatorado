@@ -1,7 +1,9 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const {routes} = require('./routes');
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import { Routes } from './routes.js';
+
+dotenv.config();
 
 const app = express();
 
@@ -12,7 +14,7 @@ app.use(cors({
 }));
 app.use(express.json()); // estou dizendo que vou usar o json
 
-routes.forEach(route =>{
+Routes.forEach(route =>{
     if(route.middleware){
         app[route.method.toLowerCase()](route.path, route.middleware, route.controller);
     }else{
