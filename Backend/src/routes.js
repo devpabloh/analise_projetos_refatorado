@@ -2,6 +2,7 @@ import { esquemaResponsavel, esquemaProjeto } from './schemas/esquemaDeRegrasFor
 import db from './config/database.js';
 import validarRequisicao from './middleware/validarRequisicao.js';
 import { cadastrarResponsavel } from './controllers/responsavelController.js';
+import { cadastrarProjeto } from './controllers/projetoController.js';
 
 export const Routes = [
     // Rota para listar todos os responsáveis
@@ -50,53 +51,20 @@ export const Routes = [
         method: 'POST',
         path: '/projetos',
         middleware: validarRequisicao(esquemaProjeto),
-        controller: async ({requisicao, resposta}) => {
+        controller: async (req, res) => {
             try {
-                const {responsaveis, ...dadosProjeto} = requisicao.body;
-                await esquemaProjeto.parseAsync(requisicao.body);
-
-                await db.transaction(async trx => {
-                    // Primeiro insere o projeto
-                    const [projeto] = await trx('projetos')
-                        .insert(dadosProjeto)
-                        .returning('*');
-
-                    // Se houver responsáveis, vincula eles ao projeto
-                    if(responsaveis && responsaveis.length > 0) {
-                        await trx('projeto_responsavel')
-                            .insert(
-                                responsaveis.map(responsavel => ({
-                                    projeto_id: projeto.id,
-                                    responsavel_id: responsavel.responsavel_id,
-                                    tipo_responsabilidade: responsavel.tipo_responsabilidade
-                                }))
-                            );
-                    }
-
-                    // Busca os dados completos dos responsáveis vinculados
-                    const projetoResponsaveis = await trx('projeto_responsavel')
-                        .join('responsaveis', 'responsaveis.id', 'projeto_responsavel.responsavel_id')
-                        .where('projeto_id', projeto.id)
-                        .select('responsaveis.*', 'projeto_responsavel.tipo_responsabilidade');
-
-                    return resposta.writeHead(201).end(JSON.stringify({
-                        mensagem: 'Projeto cadastrado com sucesso',
-                        projeto: {
-                            ...projeto,
-                            responsaveis: projetoResponsaveis
-                        }
-                    }));
+                const projeto = await cadastrarProjeto(req.body);
+    
+                return res.status(201).json({
+                    mensagem: 'Projeto cadastrado com sucesso',
+                    projeto
                 });
             } catch (error) {
-                if(error.errors) {
-                    return resposta.writeHead(400).end(JSON.stringify({
-                        erro: 'Erro de validação',
-                        detalhes: error.errors
-                    }));
-                }
-                return resposta.writeHead(500).end(JSON.stringify({
-                    erro: 'Erro ao salvar projeto'
-                }));
+                console.error('Erro ao cadastrar projeto:', error);
+                return res.status(500).json({
+                    erro: 'Erro ao cadastrar projeto',
+                    mensagem: error.message
+                });
             }
         }
     }

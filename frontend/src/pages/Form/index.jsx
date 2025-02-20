@@ -36,23 +36,15 @@ export const FormularioProjeto = () => {
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
-            console.log('Dados do formulário:', data);
-            
-            // Preparar os dados do responsável
-            const dadosResponsavel = {
+            // Primeiro, cadastrar o responsável
+            const respostaResponsavel = await api.post('/responsaveis', {
                 nome: data.nome_responsavel,
                 cargo: data.funcao_responsavel,
                 telefone: data.telefone_responsavel,
                 email: data.email_responsavel
-            };
-
-            console.log('Dados do responsável:', dadosResponsavel);
-
-            // Primeiro, cadastrar o responsável
-            const respostaResponsavel = await api.post('/responsaveis', dadosResponsavel);
-            console.log('Resposta do cadastro de responsável:', respostaResponsavel.data);
-
-            // Preparar os dados do projeto com data_preenchimento
+            });
+    
+            // Preparar dados do projeto
             const dadosProjeto = {
                 nome: data.nome,
                 descricao: data.descricao,
@@ -71,7 +63,7 @@ export const FormularioProjeto = () => {
                 ambiente_homologacao: data.ambiente_homologacao || null,
                 ambiente_producao: data.ambiente_producao || null,
                 possui_documentacao: data.possui_documentacao === 'true',
-                tipo_documentacao: data.link_documentacao || null,
+                tipo_documentacao: data.tipo_documentacao || null,
                 documentacao_atualizada: true,
                 possui_medidas_seguranca: false,
                 possui_conformidade: false,
@@ -80,23 +72,14 @@ export const FormularioProjeto = () => {
                     tipo_responsabilidade: 'gerente_projetos'
                 }]
             };
-
-            console.log('Dados do projeto:', dadosProjeto);
-
+    
             // Cadastrar o projeto
-            const respostaProjeto = await api.post('/projetos', dadosProjeto);
-            console.log('Resposta do cadastro de projeto:', respostaProjeto.data);
+            await api.post('/projetos', dadosProjeto);
             
             alert('Projeto cadastrado com sucesso!');
         } catch (error) {
-            console.error('Erro detalhado:', error);
-            if (error.response) {
-                console.error('Resposta do servidor:', error.response.data);
-                alert(`Erro: ${error.response.data.erro || 'Erro ao cadastrar projeto'}`);
-            } else {
-                console.error('Erro de conexão:', error.message);
-                alert('Erro de conexão com o servidor. Verifique se o backend está rodando.');
-            }
+            console.error('Erro:', error);
+            alert('Erro ao cadastrar projeto. Verifique o console para mais detalhes.');
         } finally {
             setIsSubmitting(false);
         }

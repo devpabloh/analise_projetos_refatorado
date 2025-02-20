@@ -37,12 +37,6 @@ export const up = function(knex) {
         table.boolean('possui_conformidade').notNullable().defaultTo(false);
         table.text('descricao_conformidade');
 
-        // Responsável
-        table.string('nome_responsavel').notNullable();
-        table.string('email_responsavel').notNullable();
-        table.string('telefone_responsavel').notNullable();
-        table.string('funcao_responsavel').notNullable();
-
         table.timestamp('data_criacao').defaultTo(knex.fn.now());
     });
 };

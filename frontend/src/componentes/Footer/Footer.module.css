@@ -1,0 +1,22 @@
+.containerFooter{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem;
+
+}
+
+.logoGovPE{
+  width: 200px;
+}
+
+.containerLista{
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  list-style-type: none;
+}
+
+.logo{
+  height: 50px;
+}
