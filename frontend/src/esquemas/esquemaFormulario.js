@@ -30,46 +30,74 @@ export const formSchema = z.object({
     descricao_testes: z.string()
         .optional()
         .nullable()
-        .refine(val => !val || val.length >= 10, {
-            message: 'A descrição dos testes deve ter no mínimo 10 caracteres'
+        .superRefine((val, ctx) => {
+            if (ctx.parent?.possui_testes === 'true' && (!val || val.length < 10)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'A descrição dos testes deve ter no mínimo 10 caracteres quando possui testes'
+                });
+            }
         }),
     possui_documentacao: z.string(),
     link_documentacao: z.string()
-        .url('Digite uma URL válida')
         .optional()
-        .nullable(),
+        .nullable()
+        .superRefine((val, ctx) => {
+            // Só valida se possui_documentacao for true
+            if (ctx.parent?.possui_documentacao === 'true') {
+                if (!val) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: 'URL da documentação é obrigatória quando possui documentação'
+                    });
+                } else if (!val.startsWith('http://') && !val.startsWith('https://')) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: 'Digite uma URL válida'
+                    });
+                }
+            }
+        }),
 
     // Deploy e Infraestrutura
     possui_deploy: z.string(),
     descricao_deploy: z.string()
         .optional()
         .nullable()
-        .refine((val, ctx) => {
-            if (ctx.parent.possui_deploy === 'true' && !val) {
-                return false;
+        .superRefine((val, ctx) => {
+            if (ctx.parent?.possui_deploy === 'true' && (!val || val.length < 10)) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'A descrição do deploy deve ter no mínimo 10 caracteres quando possui deploy'
+                });
             }
-            return val ? val.length >= 10 : true;
-        }, { message: 'A descrição do deploy deve ter no mínimo 10 caracteres quando possui deploy' }),
-    ambiente_homologacao: z.string()
+        }),
+    
+        ambiente_homologacao: z.string()
         .url('Digite uma URL válida')
         .optional()
         .nullable()
-        .refine((val, ctx) => {
-            if (ctx.parent.possui_deploy === 'true' && !val) {
-                return false;
+        .superRefine((val, ctx) => {
+            if (ctx.parent?.possui_deploy === 'true' && !val) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'URL do ambiente de homologação é obrigatória quando possui deploy'
+                });
             }
-            return true;
-        }, { message: 'URL do ambiente de homologação é obrigatória quando possui deploy' }),
-    ambiente_producao: z.string()
+        }),
+
+        ambiente_producao: z.string()
         .url('Digite uma URL válida')
         .optional()
         .nullable()
-        .refine((val, ctx) => {
-            if (ctx.parent.possui_deploy === 'true' && !val) {
-                return false;
+        .superRefine((val, ctx) => {
+            if (ctx.parent?.possui_deploy === 'true' && !val) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'URL do ambiente de produção é obrigatória quando possui deploy'
+                });
             }
-            return true;
-        }, { message: 'URL do ambiente de produção é obrigatória quando possui deploy' }),
+        }),
 
     // Responsáveis
     nome_responsavel: z.string()

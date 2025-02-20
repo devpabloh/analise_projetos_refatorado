@@ -5,7 +5,7 @@ import { Select } from '../../componentes/Select';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formSchema } from '../../esquemas/esquemaFormulario';
-import axios from 'axios';
+import api from '../../servicos/api'; 
 
 export const FormularioProjeto = () => {
     const [showScrollButton, setShowScrollButton] = useState(false);
@@ -49,7 +49,7 @@ export const FormularioProjeto = () => {
             console.log('Dados do responsável:', dadosResponsavel);
 
             // Primeiro, cadastrar o responsável
-            const respostaResponsavel = await axios.post('http://localhost:3000/responsaveis', dadosResponsavel);
+            const respostaResponsavel = await api.post('/responsaveis', dadosResponsavel);
             console.log('Resposta do cadastro de responsável:', respostaResponsavel.data);
 
             // Preparar os dados do projeto com data_preenchimento
@@ -84,13 +84,19 @@ export const FormularioProjeto = () => {
             console.log('Dados do projeto:', dadosProjeto);
 
             // Cadastrar o projeto
-            const respostaProjeto = await axios.post('http://localhost:3000/projetos', dadosProjeto);
+            const respostaProjeto = await api.post('/projetos', dadosProjeto);
             console.log('Resposta do cadastro de projeto:', respostaProjeto.data);
             
             alert('Projeto cadastrado com sucesso!');
         } catch (error) {
-            console.error('Erro detalhado:', error.response?.data || error);
-            alert('Erro ao cadastrar projeto. Verifique o console para mais detalhes.');
+            console.error('Erro detalhado:', error);
+            if (error.response) {
+                console.error('Resposta do servidor:', error.response.data);
+                alert(`Erro: ${error.response.data.erro || 'Erro ao cadastrar projeto'}`);
+            } else {
+                console.error('Erro de conexão:', error.message);
+                alert('Erro de conexão com o servidor. Verifique se o backend está rodando.');
+            }
         } finally {
             setIsSubmitting(false);
         }

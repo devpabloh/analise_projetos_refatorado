@@ -1,13 +1,13 @@
-const validarRequisicao = (schema)=>{
-    return async (requisicao, resposta, next)=>{
+const validarRequisicao = (schema) => {
+    return async (req, res, next) => {
         try {
-            await schema.parseAsync(requisicao.body);
+            await schema.parseAsync(req.body);
             next();
         } catch (error) {
-            return resposta.writeHead(400).end(JSON.stringify({
+            return res.status(400).json({
                 erro: 'Erro de validação',
                 detalhes: error.errors
-            }))
+            });
         }
     }
 }

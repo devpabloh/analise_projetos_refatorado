@@ -9,27 +9,40 @@ const app = express();
 
 app.use(cors({
     origin: 'http://localhost:5173',
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type'],
+    credentials: true
 }));
 app.use(express.json()); // estou dizendo que vou usar o json
+app.use(express.urlencoded({ extended: true }));
+
+app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        return res.status(400).json({ error: 'Invalid JSON' });
+    }
+    next();
+});
 
 Routes.forEach(route =>{
     if(route.middleware){
-        app[route.method.toLowerCase()](route.path, route.middleware, route.controller);
+        app[route.method.toLowerCase()](route.path, route.middleware, (req, res, next) => {
+            Promise.resolve(route.controller(req, res, next)).catch(next); });
     }else{
-        app[route.method.toLowerCase()](route.path, route.controller);
-    
+        app[route.method.toLowerCase()](route.path, (req, res, next) => {
+            Promise.resolve(route.controller(req, res, next)).catch(next);
+        });
     }
 });
 
-app.use((error, requisicao, resposta, next)=>{
-    console.error(error);
-    return resposta.writeHead(500).end(JSON.stringify({
-        erro: 'Erro interno do servidor'
-    }));
+app.use((error, req, res, next) => {
+    console.error('Error:', error);
+    res.status(500).json({
+        error: 'Erro interno do servidor',
+        message: error.message
+    });
 });
 
-app.listen(3000, () => {
-    console.log(`O servidor está rodando na porta 3000`)
+const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`O servidor está rodando na porta ${PORT}`);
 });

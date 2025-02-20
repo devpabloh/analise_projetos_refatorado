@@ -42,36 +42,38 @@ export const esquemaProjeto = z.object({
         .refine(val => !val || val.length >= 10, {
             message: 'A descrição dos testes deve ter no mínimo 10 caracteres'
         }),
-    possui_deploy: z.string().transform(val => val === 'true'),
-    descricao_deploy: z.string()
-        .optional()
-        .nullable()
-        .refine((val, ctx) => {
-            if (ctx.parent.processo_deploy === true && !val) {
-                return false;
-            }
-            return val ? val.length >= 10 : true;
-        }, { message: 'A descrição do deploy deve ter no mínimo 10 caracteres quando possui deploy' }),
-    ambiente_homologacao: z.string()
-        .url('Digite uma URL válida')
-        .optional()
-        .nullable()
-        .refine((val, ctx) => {
-            if (ctx.parent.processo_deploy === true && !val) {
-                return false;
-            }
-            return true;
-        }, { message: 'URL do ambiente de homologação é obrigatória quando possui deploy' }),
-    ambiente_producao: z.string()
-        .url('Digite uma URL válida')
-        .optional()
-        .nullable()
-        .refine((val, ctx) => {
-            if (ctx.parent.processo_deploy === true && !val) {
-                return false;
-            }
-            return true;
-        }, { message: 'URL do ambiente de produção é obrigatória quando possui deploy' }),
+        possui_deploy: z.boolean().default(false),
+        descricao_deploy: z.string()
+            .optional()
+            .nullable()
+            .refine((val, ctx) => {
+                if (ctx.parent?.possui_deploy === true && (!val || val.length < 10)) {
+                    return false;
+                }
+                return true;
+            }, { message: 'A descrição do deploy deve ter no mínimo 10 caracteres quando possui deploy' }),
+    
+        ambiente_homologacao: z.string()
+            .url('Digite uma URL válida')
+            .optional()
+            .nullable()
+            .refine((val, ctx) => {
+                if (ctx.parent?.possui_deploy === true && !val) {
+                    return false;
+                }
+                return true;
+            }, { message: 'URL do ambiente de homologação é obrigatória quando possui deploy' }),
+    
+        ambiente_producao: z.string()
+            .url('Digite uma URL válida')
+            .optional()
+            .nullable()
+            .refine((val, ctx) => {
+                if (ctx.parent?.possui_deploy === true && !val) {
+                    return false;
+                }
+                return true;
+            }, { message: 'URL do ambiente de produção é obrigatória quando possui deploy' }),
     deploy_automatizado: z.boolean().default(false),
     deploy_implementado: z.boolean().default(false),
 
