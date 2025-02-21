@@ -11,8 +11,8 @@
   --color-background: #f3f4f6;
   --color-gradient-start: #1F64FF;
   --color-gradient-end: #639FFF;
-  --color-focus:rgb(229, 254, 2);
-  --color-focus-shadow: rgba(248, 255, 31, 0.95);
+  --color-focus:rgb(30, 113, 247);
+  --color-focus-shadow:rgb(62, 127, 232);
   --color-focus-bg: rgba(255, 255, 255, 0.95);
 
   /* Espaçamentos */

@@ -1,6 +1,7 @@
 .formContainer {
     max-width: 900px;
     margin: 2rem auto;
+    margin-bottom: 10rem;   
     padding: 2rem;
     background-color: rgba(255, 255, 255, 0.9);
     border-radius: var(--border-radius);
@@ -58,8 +59,8 @@
 
 .scrollToTop {
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
+    bottom: 6rem;
+    right: 6rem;
     width: 3.5rem;
     height: 3.5rem;
     background:  var(--color-gradient-start);
@@ -106,6 +107,7 @@
     .formContainer {
         margin: 1rem;
         padding: 1rem;
+        margin-bottom: 8rem; 
     }
 
     .fieldset {
@@ -116,14 +118,17 @@
         font-size: var(--font-md);
         padding: 0.25rem var(--spacing-sm);
     }
-}
-
-@media (max-width: 768px) {
     .scrollToTop {
-        bottom: 1.5rem;
+        bottom: 14rem;
         right: 1.5rem;
         width: 3rem;
         height: 3rem;
         font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 320px) {
+    .scrollToTop{
+        right: .3rem;
     }
 }
